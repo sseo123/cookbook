@@ -28,8 +28,9 @@ body {
 }
 
 .container {
-  width: 1000%;
+  width: 100%;
   max-width: 1000px;
+  min-width: none;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
