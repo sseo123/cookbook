@@ -6,11 +6,14 @@ const errorContainer = document.getElementById("error-container");
 const mealDetails = document.getElementById("meal-details");
 const mealDetailsContent = document.querySelector(".meal-details-content");
 const backBtn = document.getElementById("back-btn");
+const randomMealBtn = document.getElementById("random-meal-btn");
 
 const BASE_URL = `https://www.themealdb.com/api/json/v1/1/`;
 const SEARCH_URL = `${BASE_URL}search.php?s=`;
 const LOOKUP_URL = `${BASE_URL}lookup.php?i=`;
+const RANDOM_URL = `${BASE_URL}random.php`;
 
+randomMealBtn.addEventListener("click", randomMeal);
 searchBtn.addEventListener("click", searchMeals);
 mealsContainer.addEventListener("click", handleMealClick);
 backBtn.addEventListener("click", () => mealDetails.classList.add("hidden"));
@@ -134,6 +137,21 @@ async function handleMealClick(e) {
     }
   } catch (error) {
     errorContainer.textContent = "can't load drecipe details";
-    errorContainer.classList.remove("hiddedn");
+    errorContainer.classList.remove("hidden");
+  }
+}
+
+async function randomMeal() {
+  try {
+    errorContainer.classList.add("hidden");
+    resultHeading.textContent = "Your Random Meal: ";
+
+    const responce = await fetch(`${RANDOM_URL}`);
+    const data = await responce.json();
+
+    displayMeals(data.meals);
+  } catch (error) {
+    errorContainer.textContent = "getting random meal didn't work";
+    errorContainer.classList.remove("hidden");
   }
 }

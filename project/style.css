@@ -287,6 +287,11 @@ button:hover {
     padding: 10px;
   }
 
+  button#random-meal-btn {
+    width: 100%;
+    padding: 10px;
+  }
+
   .meals-container {
     grid-template-columns: 1fr;
   }
