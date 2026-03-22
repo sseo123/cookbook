@@ -15,43 +15,43 @@ searchBtn.addEventListener("click", searchMeals);
 mealsContainer.addEventListener("click", handleMealClick);
 backBtn.addEventListener("click", () => mealDetails.classList.add("hidden"));
 searchInput.addEventListener("keypress", (e) => {
-    if(e.key === "Enter") searchMeals();
-})
+  if (e.key === "Enter") searchMeals();
+});
 
 async function searchMeals() {
-    const searchTerm = searchInput.value.trim();
+  const searchTerm = searchInput.value.trim();
 
-    //handle the edege case
-    if (!searchTerm) {
-        errorContainer.textContent = "Please enter a search term";
-        errorContainer.classList.remove("hidden");
-        return;
+  //handle the edege case
+  if (!searchTerm) {
+    errorContainer.textContent = "Please enter a search term";
+    errorContainer.classList.remove("hidden");
+    return;
+  }
+
+  try {
+    resultHeading.textContent = `Searching for "${searchTerm}"...`;
+    mealsContainer.innerHTML = "";
+    errorContainer.classList.add("hidden");
+
+    //fetch the meals from api
+    const responce = await fetch(`${SEARCH_URL}${searchTerm}`);
+    const data = await responce.json();
+
+    console.log("data is here:", data);
+    if (!data.meals) {
+      resultHeading.textContent = ``;
+      mealsContainer.innerHTML = "";
+      errorContainer.textContent = `No recipies found for ${searchTerm}. Try another search term!`;
+      errorContainer.classList.remove("hidden");
+    } else {
+      resultHeading.textContent = `Search results for "${searchTerm}":`;
+      displayMeals(data.meals);
+      searchInput.value = "";
     }
-
-    try {
-        resultHeading.textContent = `Searching for "${searchTerm}"...`
-        mealsContainer.innerHTML = "";
-        errorContainer.classList.add("hidden")
-
-        //fetch the meals from api
-        const responce = await fetch(`${SEARCH_URL}${searchTerm}`)
-        const data = await responce.json()
-
-        console.log("data is here:", data)
-        if(!data.meals) {
-            resultHeading.textContent = ``;
-            mealsContainer.innerHTML = "";
-            errorContainer.textContent = `No recipies found for ${searchTerm}. Try another search term!`
-            errorContainer.classList.remove("hidden")
-        }
-        else {
-            resultHeading.textContent = `Search results for "${searchTerm}":`;
-            displayMeals(data.meals)
-            searchInput.value = ""
-        }
-    } catch (error) {
-        errorContainer.textContent = "Something went wrong. Please try again later.";
-    }
+  } catch (error) {
+    errorContainer.textContent =
+      "Something went wrong. Please try again later.";
+  }
 }
 
 function displayMeals(meals) {
@@ -72,14 +72,68 @@ function displayMeals(meals) {
 }
 
 async function handleMealClick(e) {
-    const mealEl = e.target.closest(".meal")
-    if(!mealEl) return
-    const mealId = mealEl.getAttribute("data-meal-id")
+  const mealEl = e.target.closest(".meal");
+  if (!mealEl) return;
 
-    try {
-        const responce = await fetch (`${LOOKIP_URL}${mealId}`)
-        const data = await responce.json();
+  const mealId = mealEl.getAttribute("data-meal-id");
 
-        console.log(data);
-    } catch (error) {}
+  try {
+    const responce = await fetch(`${LOOKUP_URL}${mealId}`);
+    const data = await responce.json();
+
+    console.log(data);
+    if (data.meals && data.meals[0]) {
+      const meal = data.meals[0];
+
+      const ingredients = [];
+
+      for (let i = 1; i <= 20; i++) {
+        if (meal[`strIngredient${i}`].trim() !== "") {
+          ingredients.push({
+            ingredient: meal[`strIngredient${i}`],
+            measure: meal[`strMeasure${i}`],
+          });
+        }
+      }
+
+      mealDetailsContent.innerHTML = `
+          <img src="${meal.strMealThumb}" alt="${meal.strMeal}" class="meal-details-img">
+           <h2 class="meal-details-title">${meal.strMeal}</h2>
+           <div class="meal-details-category">
+            <span>${meal.strCategory || "Uncategorized"}</span>
+           </div>
+           <div class="meal-details-instructions">
+            <h3>Instructions</h3>
+            <p>${meal.strInstructions}</p>
+           </div>
+           <div class="meal-details-ingredients">
+             <h3>Ingredients</h3>
+             <ul class="ingredients-list">
+               ${ingredients
+                 .map(
+                   (item) => `
+                 <li><i class="fas fa-check-circle"></i> ${item.measure} ${item.ingredient}</li>
+               `,
+                 )
+                 .join("")}
+             </ul>
+           </div>
+           ${
+             meal.strYoutube
+               ? `
+             <a href="${meal.strYoutube}" target="_blank" class="youtube-link">
+               <i class="fab fa-youtube"></i> Watch Video
+             </a>
+           `
+               : ""
+           }
+         `;
+
+      mealDetails.classList.remove("hidden");
+      mealDetails.scrollIntoView({ behavior: "smooth" });
+    }
+  } catch (error) {
+    errorContainer.textContent = "can't load drecipe details";
+    errorContainer.classList.remove("hiddedn");
+  }
 }
