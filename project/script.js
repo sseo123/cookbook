@@ -37,8 +37,8 @@ async function searchMeals() {
     errorContainer.classList.add("hidden");
 
     //fetch the meals from api
-    const responce = await fetch(`${SEARCH_URL}${searchTerm}`);
-    const data = await responce.json();
+    const response = await fetch(`${SEARCH_URL}${searchTerm}`);
+    const data = await response.json();
 
     console.log("data is here:", data);
     if (!data.meals) {
@@ -81,8 +81,8 @@ async function handleMealClick(e) {
   const mealId = mealEl.getAttribute("data-meal-id");
 
   try {
-    const responce = await fetch(`${LOOKUP_URL}${mealId}`);
-    const data = await responce.json();
+    const response = await fetch(`${LOOKUP_URL}${mealId}`);
+    const data = await response.json();
 
     console.log(data);
     if (data.meals && data.meals[0]) {
@@ -146,8 +146,8 @@ async function randomMeal() {
     errorContainer.classList.add("hidden");
     resultHeading.textContent = "Your Random Meal: ";
 
-    const responce = await fetch(`${RANDOM_URL}`);
-    const data = await responce.json();
+    const response = await fetch(`${RANDOM_URL}`);
+    const data = await response.json();
 
     displayMeals(data.meals);
   } catch (error) {
